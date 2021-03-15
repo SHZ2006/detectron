@@ -6,11 +6,13 @@ import os
 import time
 import cv2
 import tqdm
+import numpy as np
+import math
 
 from detectron2.config import get_cfg
 from detectron2.data.detection_utils import read_image
 from detectron2.utils.logger import setup_logger
-
+from tools.rotation import find_rotation
 from predictor import VisualizationDemo
 
 # constants
@@ -68,8 +70,8 @@ def get_parser():
         nargs=argparse.REMAINDER,
     )
     return parser
-
-
+    
+    
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
     args = get_parser().parse_args()
@@ -111,6 +113,14 @@ if __name__ == "__main__":
             else:
                 cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
                 cv2.imshow(WINDOW_NAME, visualized_output.get_image()[:, :, ::-1])
+                img= visualized_output.get_image()[:, :, ::-1]
+                yaw, imgg , [cX , cY] = find_rotation.find_yaw(img, simulator=False)
+                print("yaw = ",yaw)
+                print('Yaw_degree = ', yaw*180/math.pi)
+                print("Center = ", [cX , cY])
+                cv2.imshow(WINDOW_NAME, imgg)
+
+
                 if cv2.waitKey(0) == 27:
                     break  # esc to quit
     elif args.webcam:

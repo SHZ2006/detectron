@@ -1,0 +1,16 @@
+# Check version PyTorch
+import torch
+print(torch.__version__)
+
+# Install PyTorch
+pip install torch==1.7.1+cu101 torchvision==0.8.2+cu101 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
+
+# to install it from a local clone:
+git clone https://github.com/facebookresearch/detectron2.git
+python -m pip install -e detectron2
+
+# If YML error:
+sudo -H pip3 install --ignore-installed PyYAML==5.4.1
+
+# To Run demo
+python3 demo/demo.py --config-file configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml  --input input1.png input2.png  --opts MODEL.WEIGHTS weights/model_final_f10217.pkl

@@ -1,4 +1,5 @@
 # Copyright (c) Facebook, Inc. and its affiliates.
+### 3# shows my editions _Hasan
 import colorsys
 import logging
 import math
@@ -354,7 +355,9 @@ class Visualizer:
             instance_mode (ColorMode): defines one of the pre-defined style for drawing
                 instances on an image.
         """
-        self.img = np.asarray(img_rgb).clip(0, 255).astype(np.uint8)
+        ###self.img = np.asarray(img_rgb).clip(0, 255).astype(np.uint8)
+        ### Hasan
+        self.img = np.zeros(img_rgb.shape, np.uint8)   ###
         if metadata is None:
             metadata = MetadataCatalog.get("__nonexist__")
         self.metadata = metadata
@@ -407,7 +410,7 @@ class Visualizer:
                 else None
             )
             alpha = 0.3
-
+        """ ### Hasan
         self.overlay_instances(
             masks=masks,
             boxes=boxes,
@@ -415,6 +418,15 @@ class Visualizer:
             keypoints=keypoints,
             assigned_colors=colors,
             alpha=alpha,
+        )
+        """
+        self.overlay_instances(
+            masks=masks,
+            boxes=None,
+            labels=None,
+            keypoints=None,
+            assigned_colors=colors,
+            alpha=0.8,
         )
         return self.output
 
@@ -1099,7 +1111,8 @@ class Visualizer:
             else:
                 edge_color = color
         edge_color = mplc.to_rgb(edge_color) + (1,)
-
+        ### Hasan
+        edge_color = mplc.to_rgb(color) + (alpha,)
         polygon = mpl.patches.Polygon(
             segment,
             fill=True,
