@@ -27,21 +27,9 @@ def _clear_jit_cache():
 
 def _add_instances_conversion_methods(newInstances):
     """
-    Add to_instances/from_instances methods to the scripted Instances class.
+    Add from_instances methods to the scripted Instances class.
     """
     cls_name = newInstances.__name__
-
-    @torch.jit.unused
-    def to_instances(self):
-        """
-        Convert scripted Instances to original Instances
-        """
-        ret = Instances(self.image_size)
-        for name in self._field_names:
-            val = getattr(self, "_" + name, None)
-            if val is not None:
-                ret.set(name, val)
-        return ret
 
     @torch.jit.unused
     def from_instances(instances: Instances):
@@ -56,7 +44,6 @@ def _add_instances_conversion_methods(newInstances):
             setattr(ret, name, deepcopy(val))
         return ret
 
-    newInstances.to_instances = to_instances
     newInstances.from_instances = from_instances
 
 
@@ -65,7 +52,7 @@ def patch_instances(fields):
     """
     A contextmanager, under which the Instances class in detectron2 is replaced
     by a statically-typed scriptable class, defined by `fields`.
-    See more in `export_torchscript_with_instances`.
+    See more in `scripting_with_instances`.
     """
 
     with tempfile.TemporaryDirectory(prefix="detectron2") as dir, tempfile.NamedTemporaryFile(
@@ -270,7 +257,6 @@ def _import(path):
     )
 
 
-# TODO: this is a private utility. Should be made more useful through a model export api.
 @contextmanager
 def patch_builtin_len(modules=()):
     """
@@ -337,6 +323,8 @@ def patch_nonscriptable_classes():
     from detectron2.modeling.roi_heads import StandardROIHeads
 
     if hasattr(StandardROIHeads, "__annotations__"):
+        # copy first to avoid editing annotations of base class
+        StandardROIHeads.__annotations__ = deepcopy(StandardROIHeads.__annotations__)
         StandardROIHeads.__annotations__["mask_on"] = torch.jit.Final[bool]
         StandardROIHeads.__annotations__["keypoint_on"] = torch.jit.Final[bool]
 
